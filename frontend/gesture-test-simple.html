@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Music - Gesture Test (Simple)</title>
+    <link rel="stylesheet" href="camera.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Enable scrolling for the entire page */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: linear-gradient(135deg, #000000, #0a0a0a, #1a0a1a, #0d0d0d);
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        
+        .gesture-test-header {
+            background: linear-gradient(135deg, #1a0a1a, #0d0d0d, #000000);
+            color: #e0e0e0;
+            padding: 35px;
+            text-align: center;
+            margin-bottom: 35px;
+            box-shadow: 0 15px 40px rgba(26, 10, 26, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .gesture-test-header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #9d4edd, #c77dff, #e0aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.3);
+        }
+        
+        .gesture-test-header p {
+            margin: 18px 0 0 0;
+            opacity: 0.8;
+            font-size: 1.2em;
+            color: #b8b8b8;
+        }
+        
+        /* Main Content */
+        .wrap {
+            min-height: calc(100vh - 220px);
+            padding: 25px;
+            box-sizing: border-box;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+            max-width: 1450px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+        }
+        
+        .card {
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.95), rgba(26, 10, 26, 0.95));
+            border-radius: 25px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+            min-height: 550px;
+        }
+        
+        /* Camera Section */
+        .stage {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .stage-header h2 {
+            margin: 0;
+            color: #c77dff;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+        
+        .live-camera-controls {
+            display: flex;
+            gap: 18px;
+        }
+        
+        .camera-btn {
+            background: linear-gradient(135deg, #1a0a1a, #2d1a2d);
+            color: #c77dff;
+            border: 2px solid rgba(199, 125, 255, 0.3);
+            padding: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 65px;
+            height: 65px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .camera-btn:hover {
+            background: linear-gradient(135deg, #2d1a2d, #3d1a3d);
+            border-color: rgba(199, 125, 255, 0.6);
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(199, 125, 255, 0.2);
+            color: #e0aaff;
+        }
+        
+        .camera-btn.active {
+            background: linear-gradient(135deg, #9d4edd, #c77dff);
+            border-color: #e0aaff;
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.4);
+            color: #000;
+        }
+        
+        .camera-btn.off {
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #666;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-wrap {
+            position: relative;
+            flex: 1;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000000;
+            min-height: 420px;
+            border: 2px solid rgba(26, 10, 26, 0.5);
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+        
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            color: #888;
+            font-size: 1.4em;
+            border-radius: 18px;
+            backdrop-filter: blur(15px);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Panel Section */
+        .panel {
+            overflow-y: auto;
+            max-height: 650px;
+        }
+        
+        .gesture-recognition-panel {
+            background: linear-gradient(135deg, rgba(26, 10, 26, 0.4), rgba(0, 0, 0, 0.6));
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        }
+        
+        .gesture-recognition-panel h3 {
+            margin: 0 0 25px 0;
+            color: #c77dff;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(199, 125, 255, 0.3);
+        }
+        
+        .gesture-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(13, 13, 13, 0.9));
+            border-radius: 15px;
+            text-align: center;
+            color: #e0e0e0;
+            border: 1px solid rgba(26, 10, 26, 0.4);
+            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        
+        .confidence-bar {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: #c77dff;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .confidence-container {
+            flex: 1;
+            height: 12px;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.8), rgba(13, 13, 13, 0.8));
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(26, 10, 26, 0.3);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #9d4edd, #c77dff);
+            transition: width 0.4s ease;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.4);
+        }
+        
+        /* Gesture Instructions */
+        .gesture-instructions {
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.6), rgba(26, 10, 26, 0.3));
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .gesture-instructions h3 {
+            color: #c77dff;
+            margin-bottom: 25px;
+            font-size: 1.4em;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(199, 125, 255, 0.3);
+        }
+        
+        .gesture-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .gesture-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .gesture-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(13, 13, 13, 0.8));
+            border-radius: 15px;
+            border: 1px solid rgba(26, 10, 26, 0.3);
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gesture-item:hover {
+            background: linear-gradient(135deg, rgba(26, 10, 26, 0.4), rgba(13, 13, 13, 0.9));
+            border-color: rgba(157, 78, 221, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.2);
+        }
+        
+        .gesture-icon {
+            font-size: 1.6em;
+            min-width: 40px;
+            text-align: center;
+            filter: brightness(0.9);
+        }
+        
+        .gesture-item span:last-child {
+            color: #b8b8b8;
+            font-weight: 500;
+        }
+        
+        /* Controls Section */
+        .section {
+            background: linear-gradient(135deg, rgba(13, 13, 13, 0.6), rgba(26, 10, 26, 0.3));
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .section h3 {
+            margin-top: 0;
+            color: #c77dff;
+            font-size: 1.4em;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(199, 125, 255, 0.3);
+        }
+        
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        /* Toggle Switch Styles */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 45px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .track {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            transition: all 0.5s ease;
+            border-radius: 45px;
+            box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(26, 10, 26, 0.3);
+        }
+        
+        .track:before {
+            position: absolute;
+            content: "";
+            height: 35px;
+            width: 35px;
+            left: 5px;
+            bottom: 3px;
+            background: linear-gradient(135deg, #333, #555);
+            transition: all 0.5s ease;
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        input:checked + .track {
+            background: linear-gradient(135deg, #9d4edd, #c77dff);
+            box-shadow: inset 0 3px 12px rgba(157, 78, 221, 0.4), 0 2px 8px rgba(157, 78, 221, 0.3);
+            border-color: rgba(199, 125, 255, 0.5);
+        }
+        
+        input:checked + .track:before {
+            transform: translateX(35px);
+            background: linear-gradient(135deg, #fff, #e0aaff);
+            box-shadow: 0 6px 20px rgba(199, 125, 255, 0.5);
+            border-color: rgba(224, 170, 255, 0.3);
+        }
+        
+        .track:hover {
+            border-color: rgba(157, 78, 221, 0.5);
+        }
+        
+        input:checked + .track:hover {
+            background: linear-gradient(135deg, #c77dff, #e0aaff);
+        }
+        
+        .thumb, .glow {
+            display: none;
+        }
+        
+        /* Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: -1;
+            filter: blur(60px);
+        }
+        
+        .orb.one {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #1a0a1a, transparent);
+            top: -250px;
+            right: -250px;
+            animation: float 10s ease-in-out infinite;
+        }
+        
+        .orb.two {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #0d0d0d, transparent);
+            bottom: -175px;
+            left: -175px;
+            animation: float 12s ease-in-out infinite reverse;
+        }
+        
+        .orb.three {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #9d4edd, transparent);
+            top: 70%;
+            right: 25%;
+            animation: float 14s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+                opacity: 0.15;
+            }
+            50% { 
+                transform: translateY(-40px) rotate(180deg); 
+                opacity: 0.25;
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .gesture-test-header h1 {
+                font-size: 2.4em;
+            }
+            
+            .wrap {
+                padding: 18px;
+            }
+            
+            .card {
+                padding: 25px;
+                min-height: 450px;
+            }
+            
+            .camera-btn {
+                width: 55px;
+                height: 55px;
+                padding: 14px;
+            }
+            
+            .toggle {
+                width: 70px;
+                height: 38px;
+            }
+            
+            .track:before {
+                height: 30px;
+                width: 30px;
+            }
+            
+            input:checked + .track:before {
+                transform: translateX(28px);
+            }
+        }
+        
+        /* Scrollbar Styling - Ultra Dark */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #000000, #0d0d0d);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #1a0a1a, #2d1a2d);
+            border-radius: 10px;
+            border: 1px solid rgba(26, 10, 26, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #9d4edd, #c77dff);
+        }
+        
+        /* Selection styling */
+        ::selection {
+            background: rgba(157, 78, 221, 0.3);
+            color: #e0aaff;
+        }
+        
+        ::-moz-selection {
+            background: rgba(157, 78, 221, 0.3);
+            color: #e0aaff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+
+    <!-- Header -->
+    <div class="gesture-test-header">
+        <h1>Smart Music Gesture Test</h1>
+        <p>Test your trained gesture recognition model with Spotify integration</p>
+    </div>
+
+    <!-- Main Content -->
+    <main class="wrap">
+        <section class="grid">
+            <!-- Left: Camera -->
+            <div class="card stage">
+                <div class="stage-header">
+                    <h2>Live Camera Feed</h2>
+                    <div class="live-camera-controls">
+                        <button id="toggleCamBtn" class="camera-btn" title="Toggle Camera">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-camera">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="video-wrap" id="videoWrap">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="overlay"></canvas>
+                    <div class="placeholder" id="placeholder">
+                        📷 Camera is off<br>Click camera button to start
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Controls -->
+            <div class="card panel">
+                <!-- Gesture Recognition Display -->
+                <div class="gesture-recognition-panel">
+                    <h3>🎭 Current Gesture</h3>
+                    <div id="currentGesture" class="gesture-display">No gesture detected</div>
+                    <div class="confidence-bar">
+                        <span>Confidence:</span>
+                        <div class="confidence-container">
+                            <div class="confidence-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gesture Instructions -->
+                <div class="gesture-instructions">
+                    <h3>🎵 Your 8 Trained Gestures</h3>
+                    <div class="gesture-list">
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✋</span>
+                            <span>play_right → Play</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✊</span>
+                            <span>pause_right → Pause</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👉</span>
+                            <span>next_right → Next Track</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👈</span>
+                            <span>previous_right → Previous</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👍</span>
+                            <span>volume_up_left → Volume Up</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👎</span>
+                            <span>volume_down_left → Volume Down</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">❤️</span>
+                            <span>like_left → Like Track</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">⏩</span>
+                            <span>skip30_left → Skip 30s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="section">
+                    <h3>⚙️ Controls</h3>
+                    <div class="row">
+                        <strong>📹 Camera</strong>
+                        <label class="toggle">
+                            <input type="checkbox" id="cameraToggle">
+                            <span class="track"></span>
+                        </label>
+                    </div>
+                    <div class="row">
+                        <strong>🎭 Gesture Recognition</strong>
+                        <label class="toggle">
+                            <input type="checkbox" id="gestureToggle" checked>
+                            <span class="track"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Simple gesture testing without external dependencies
+        let stream = null;
+        let isGestureRecognitionActive = true; // Default to true as per original code
+        let gestureRecognitionInterval = null;
+        let isSpotifyAuthenticated = false;
+        
+        // Backend URL - EXACTLY as in your original code
+        const BACKEND_URL = 'http://localhost:3000';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🎭 Gesture Test Page Loaded');
+            
+            // Check backend connection
+            checkBackendConnection();
+            
+            // Set up camera controls
+            const video = document.getElementById('video');
+            const overlay = document.getElementById('overlay');
+            const ctx = overlay ? overlay.getContext('2d') : null;
+            const toggleCamBtn = document.getElementById('toggleCamBtn');
+            const cameraToggle = document.getElementById('cameraToggle');
+            const gestureToggle = document.getElementById('gestureToggle');
+            const placeholder = document.getElementById('placeholder');
+            
+            // Initialize toggle states - EXACTLY as in your original code
+            if (gestureToggle) {
+                gestureToggle.checked = true;
+                isGestureRecognitionActive = true;
+            }
+            
+            // Check backend connection - EXACT same function from your original code
+            async function checkBackendConnection() {
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/health`);
+                    const data = await response.json();
+                    console.log('✅ Backend connected');
+                    
+                    // Check Spotify status
+                    const spotifyResponse = await fetch(`${BACKEND_URL}/api/spotify/status`);
+                    const spotifyData = await spotifyResponse.json();
+                    if (spotifyData.authenticated) {
+                        console.log('✅ Connected to Spotify as', spotifyData.user?.name || spotifyData.user?.id);
+                        isSpotifyAuthenticated = true;
+                    } else {
+                        console.log('❌ Not connected to Spotify');
+                        isSpotifyAuthenticated = false;
+                    }
+                } catch (error) {
+                    console.error('❌ Backend connection failed:', error);
+                }
+            }
+            
+            // Camera functions - EXACTLY as in your original code
+            async function startCamera() {
+                try {
+                    console.log('🎥 Starting camera...');
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    placeholder.style.display = "none";
+                    toggleCamBtn.classList.add("active");
+                    toggleCamBtn.classList.remove("off");
+                    if (cameraToggle) cameraToggle.checked = true;
+                    
+                    video.onloadedmetadata = () => {
+                        resizeCanvas();
+                        if (ctx) {
+                            requestAnimationFrame(drawOverlay);
+                        }
+                    };
+                    
+                    console.log('✅ Camera started successfully');
+                    
+                    // Start gesture recognition if enabled
+                    if (isGestureRecognitionActive) {
+                        startGestureRecognition();
+                    }
+                } catch (err) {
+                    console.error('❌ Camera error:', err);
+                    alert(`Error accessing camera: ${err.message}\n\nPlease:\n1. Allow camera permissions\n2. Make sure no other app is using the camera\n3. Try refreshing the page`);
+                }
+            }
+            
+            function stopCamera() {
+                console.log('🎥 Stopping camera...');
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                video.srcObject = null;
+                placeholder.style.display = "flex";
+                toggleCamBtn.classList.remove("active");
+                toggleCamBtn.classList.add("off");
+                if (cameraToggle) cameraToggle.checked = false;
+                
+                // Stop gesture recognition
+                stopGestureRecognition();
+                console.log('✅ Camera stopped');
+            }
+            
+            function resizeCanvas() {
+                if (!overlay || !video) return;
+                const rect = video.getBoundingClientRect();
+                overlay.width = rect.width * devicePixelRatio;
+                overlay.height = rect.height * devicePixelRatio;
+                overlay.style.width = rect.width + "px";
+                overlay.style.height = rect.height + "px";
+                if (ctx) {
+                    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+                }
+            }
+            
+            function drawOverlay() {
+                if (!ctx || !overlay) return;
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                requestAnimationFrame(drawOverlay);
+            }
+            
+            // Gesture recognition functions - EXACTLY as in your original code
+            async function predictGesture() {
+                if (!video.srcObject || !video.videoWidth) return;
+                
+                try {
+                    // Capture frame from video
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+                    
+                    // Convert to base64
+                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // Send to backend - EXACT same API call from your original code
+                    const response = await fetch(`${BACKEND_URL}/api/gesture/predict`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        updateGestureDisplay(result);
+                        
+                        // Trigger gesture action if confidence is high enough - SAME logic
+                        if (result.gesture && result.gesture !== 'none' && result.confidence >= 0.3) {
+                            console.log('🎭 Triggering gesture action:', result.gesture);
+                            await executeSpotifyAction(result.gesture);
+                        }
+                    } else {
+                        console.error('Gesture prediction failed:', response.status);
+                    }
+                } catch (error) {
+                    console.error('Gesture prediction error:', error);
+                }
+            }
+            
+            // EXACTLY same executeSpotifyAction function from your original code
+            async function executeSpotifyAction(gesture) {
+                if (!isSpotifyAuthenticated) {
+                    console.log('❌ Spotify not authenticated, skipping action');
+                    return;
+                }
+                
+                // Map gestures to actions - SAME mapping
+                const gestureActions = {
+                    'play_right': { action: 'play' },
+                    'pause_right': { action: 'pause' },
+                    'next_right': { action: 'next' },
+                    'previous_right': { action: 'previous' },
+                    'volume_up_left': { action: 'volume', delta: 10 },
+                    'volume_down_left': { action: 'volume', delta: -10 },
+                    'like_left': { action: 'like' },
+                    'skip30_left': { action: 'seek', delta: 30000 }
+                };
+                
+                const action = gestureActions[gesture];
+                if (!action) {
+                    console.log('❓ Unknown gesture:', gesture);
+                    return;
+                }
+                
+                try {
+                    console.log('🎵 Executing Spotify action:', action);
+                    // EXACT same API call from your original code
+                    const response = await fetch(`${BACKEND_URL}/api/spotify/control`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(action)
+                    });
+                    
+                    const result = await response.json();
+                    if (result.ok) {
+                        console.log('✅ Spotify action executed:', action.action);
+                        showGestureFeedback(gesture, true);
+                    } else {
+                        console.error('❌ Spotify action failed:', result.error);
+                        showGestureFeedback(gesture, false);
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to execute Spotify action:', error);
+                    showGestureFeedback(gesture, false);
+                }
+            }
+            
+            function showGestureFeedback(gesture, success) {
+                // Enhanced visual feedback with darker theme
+                const feedback = document.createElement('div');
+                feedback.className = `gesture-feedback ${success ? 'success' : 'error'}`;
+                feedback.textContent = `${success ? '✅' : '❌'} ${gesture}`;
+                feedback.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: ${success ? 'linear-gradient(135deg, #9d4edd, #c77dff)' : 'linear-gradient(135deg, #e74c3c, #c0392b)'};
+                    color: white;
+                    padding: 25px 35px;
+                    border-radius: 35px;
+                    font-weight: bold;
+                    font-size: 1.3em;
+                    z-index: 10000;
+                    pointer-events: none;
+                    animation: gestureFeedback 2.5s ease-out forwards;
+                    box-shadow: 0 20px 50px ${success ? 'rgba(157, 78, 221, 0.6)' : 'rgba(231, 76, 60, 0.6)'};
+                    backdrop-filter: blur(15px);
+                    border: 1px solid ${success ? 'rgba(199, 125, 255, 0.3)' : 'rgba(231, 76, 60, 0.3)'};
+                `;
+                
+                document.body.appendChild(feedback);
+                
+                // Remove feedback after animation
+                setTimeout(() => {
+                    if (feedback.parentNode) {
+                        feedback.parentNode.removeChild(feedback);
+                    }
+                }, 2500);
+            }
+            
+            function updateGestureDisplay(result) {
+                const gestureElements = document.querySelectorAll('#currentGesture');
+                const confidenceFills = document.querySelectorAll('.confidence-fill');
+                
+                // Update gesture display elements
+                gestureElements.forEach(element => {
+                    if (result.gesture === 'none' || !result.gesture) {
+                        element.textContent = 'No gesture detected';
+                        element.style.color = '#666';
+                    } else {
+                        element.textContent = `${result.gesture} (${(result.confidence * 100).toFixed(1)}%)`;
+                        element.style.color = result.confidence > 0.8 ? '#c77dff' : 
+                                             result.confidence > 0.6 ? '#e0aaff' : '#9d4edd';
+                    }
+                });
+                
+                // Update confidence bars
+                confidenceFills.forEach(fill => {
+                    const confidencePercent = (result.confidence || 0) * 100;
+                    fill.style.width = `${confidencePercent}%`;
+                    fill.style.background = result.confidence > 0.8 ? 'linear-gradient(90deg, #9d4edd, #c77dff)' : 
+                                           result.confidence > 0.6 ? 'linear-gradient(90deg, #f39c12, #e0aaff)' : 
+                                           'linear-gradient(90deg, #e74c3c, #f39c12)';
+                });
+            }
+            
+            function startGestureRecognition() {
+                if (gestureRecognitionInterval) return;
+                
+                gestureRecognitionInterval = setInterval(predictGesture, 500); // Every 500ms - SAME as original
+                console.log('🎭 Gesture recognition started');
+            }
+            
+            function stopGestureRecognition() {
+                if (gestureRecognitionInterval) {
+                    clearInterval(gestureRecognitionInterval);
+                    gestureRecognitionInterval = null;
+                    console.log('🎭 Gesture recognition stopped');
+                }
+            }
+            
+            // Event listeners - EXACTLY as in your original code
+            if (toggleCamBtn) {
+                toggleCamBtn.addEventListener('click', () => {
+                    stream ? stopCamera() : startCamera();
+                });
+            }
+            
+            if (cameraToggle) {
+                cameraToggle.addEventListener('change', () => {
+                    cameraToggle.checked ? startCamera() : stopCamera();
+                });
+            }
+            
+            if (gestureToggle) {
+                gestureToggle.addEventListener('change', () => {
+                    isGestureRecognitionActive = gestureToggle.checked;
+                    console.log('Gesture recognition toggle:', isGestureRecognitionActive);
+                    
+                    if (isGestureRecognitionActive && stream) {
+                        startGestureRecognition();
+                    } else {
+                        stopGestureRecognition();
+                    }
+                });
+            }
+            
+            // Window resize - SAME as original
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Add CSS for gesture feedback animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes gestureFeedback {
+                    0% { 
+                        opacity: 0; 
+                        transform: translate(-50%, -50%) scale(0.3); 
+                    }
+                    15% { 
+                        opacity: 1; 
+                        transform: translate(-50%, -50%) scale(1.1); 
+                    }
+                    85% { 
+                        opacity: 1; 
+                        transform: translate(-50%, -50%) scale(1); 
+                    }
+                    100% { 
+                        opacity: 0; 
+                        transform: translate(-50%, -50%) scale(0.8); 
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            console.log('✅ Gesture test page initialized');
+        });
+    </script>
+</body>
+</html>

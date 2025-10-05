@@ -1,0 +1,264 @@
+# Smart Music - .gitignore
+# Exclude files and directories that shouldn't be tracked in Git
+
+# ===========================================
+# Environment & Configuration Files
+# ===========================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+config.json
+spotify.config.json
+
+# ===========================================
+# Python
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ===========================================
+# Node.js
+# ===========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ===========================================
+# Machine Learning Models & Data
+# ===========================================
+# Keep trained models but exclude large data files
+*.pkl
+!Gesture final/gesture_model.pkl
+!Gesture final/scaler.pkl
+*.h5
+*.hdf5
+*.joblib
+*.model
+*.weights
+
+# Large data files
+*.csv
+*.json
+!Gesture final/testing1.json
+*.parquet
+*.feather
+
+# ===========================================
+# Media Files
+# ===========================================
+*.mp3
+*.mp4
+*.avi
+*.mov
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+
+# Images (keep small ones, exclude large ones)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+!frontend/profile img/*.png
+!frontend/Cards/Page/*.jpg
+!frontend/Cards/Page/*.png
+!frontend/*.jpg
+!frontend/*.png
+
+# ===========================================
+# Logs & Debug Files
+# ===========================================
+*.log
+logs/
+log/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ===========================================
+# IDE & Editor Files
+# ===========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===========================================
+# OS Generated Files
+# ===========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================================
+# Temporary Files
+# ===========================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+.cache/
+cache/
+temp/
+tmp/
+
+# ===========================================
+# Spotify & API Cache
+# ===========================================
+.cache
+.cache-*
+spotify_cache/
+*.cache
+.cache-gesture-session
+
+# ===========================================
+# Build & Distribution
+# ===========================================
+build/
+dist/
+out/
+target/
+
+# ===========================================
+# Testing
+# ===========================================
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# ===========================================
+# Documentation Build
+# ===========================================
+docs/_build/
+site/
+
+# ===========================================
+# Jupyter Notebook
+# ===========================================
+.ipynb_checkpoints
+
+# ===========================================
+# pyenv
+# ===========================================
+.python-version
+
+# ===========================================
+# pipenv
+# ===========================================
+Pipfile.lock
+
+# ===========================================
+# Celery
+# ===========================================
+celerybeat-schedule
+celerybeat.pid
+
+# ===========================================
+# SageMath parsed files
+# ===========================================
+*.sage.py
+
+# ===========================================
+# Spyder project settings
+# ===========================================
+.spyderproject
+.spyproject
+
+# ===========================================
+# Rope project settings
+# ===========================================
+.ropeproject
+
+# ===========================================
+# mkdocs documentation
+# ===========================================
+/site
+
+# ===========================================
+# mypy
+# ===========================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ===========================================
+# Pyre type checker
+# ===========================================
+.pyre/
+
+# ===========================================
+# Project Specific
+# ===========================================
+# Exclude large model files but keep essential ones
+Models/__MACOSX/
+potify-backend -Recurse -Force
+vuprojectsmart-musicoff
+tatus
+
+# Keep important files
+!Gesture final/gesture_model.pkl
+!Gesture final/scaler.pkl
+!Gesture final/README.txt
+!backend/env.template
+!SPOTIFY_SETUP_GUIDE.md
+!GESTURE_INTEGRATION_GUIDE.md

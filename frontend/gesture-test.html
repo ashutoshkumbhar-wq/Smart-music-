@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Music - Gesture Test</title>
+    <link rel="stylesheet" href="camera.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gesture-test-header {
+            background: linear-gradient(135deg, #1db954, #191414);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .gesture-test-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .gesture-test-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .gesture-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .gesture-instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .gesture-instructions h3 {
+            color: #1db954;
+            margin-bottom: 15px;
+        }
+        
+        .gesture-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .gesture-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .gesture-icon {
+            font-size: 1.5em;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .confidence-display {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e22134, #ff9800, #1db954);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+
+    <!-- Header -->
+    <div class="gesture-test-header">
+        <h1>Smart Music Gesture Test</h1>
+        <p>Test your trained gesture recognition model with Spotify integration</p>
+    </div>
+
+    <!-- Gesture Status -->
+    <div class="gesture-status" id="gesture-status">
+        <div id="auth-status">Checking Spotify connection...</div>
+        <div id="current-gesture" style="margin-top: 10px;">No gesture detected</div>
+        <div class="confidence-display">
+            <div>Confidence: <span id="confidence-value">0%</span></div>
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidence-fill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="wrap">
+        <section class="grid">
+            <!-- Left: Camera -->
+            <div class="card stage">
+                <div class="stage-header">
+                    <div class="live-camera-controls">
+                        <button id="toggleCamBtn" class="camera-btn" title="Toggle Camera">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-camera">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="video-wrap" id="videoWrap">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="overlay"></canvas>
+                    <div class="placeholder" id="placeholder">
+                        Camera is off • Click camera button
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Controls -->
+            <div class="card panel">
+                <!-- Gesture Recognition Display -->
+                <div class="gesture-recognition-panel">
+                    <h3>Your Trained Gestures</h3>
+                    <div id="currentGesture" class="gesture-display">No gesture detected</div>
+                    <div class="confidence-bar">
+                        <span>Confidence:</span>
+                        <div class="confidence-container">
+                            <div class="confidence-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gesture Instructions -->
+                <div class="gesture-instructions">
+                    <h3>Your 8 Trained Gestures</h3>
+                    <div class="gesture-list">
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✋</span>
+                            <span>play_right → Play</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">✊</span>
+                            <span>pause_right → Pause</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👉</span>
+                            <span>next_right → Next Track</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👈</span>
+                            <span>previous_right → Previous</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👍</span>
+                            <span>volume_up_left → Volume Up</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">👎</span>
+                            <span>volume_down_left → Volume Down</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">❤️</span>
+                            <span>like_left → Like Track</span>
+                        </div>
+                        <div class="gesture-item">
+                            <span class="gesture-icon">⏩</span>
+                            <span>skip30_left → Skip 30s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="row">
+                        <strong>Camera</strong>
+                        <label class="toggle">
+                            <input type="checkbox" id="cameraToggle">
+                            <span class="track"></span><span class="thumb"></span><span class="glow"></span>
+                        </label>
+                    </div>
+                    <div class="row">
+                        <strong>Gesture Recognition</strong>
+                        <label class="toggle">
+                            <input type="checkbox" id="gestureToggle" checked>
+                            <span class="track"></span><span class="thumb"></span><span class="glow"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Include Hammer.js for touch gestures -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="unified-gesture-controller.js"></script>
+    <script>
+        // Initialize gesture testing
+        let gestureController;
+        let stream = null;
+        let isGestureRecognitionActive = false;
+        let gestureRecognitionInterval = null;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize unified gesture controller
+            gestureController = new UnifiedGestureController({
+                backendUrl: 'http://localhost:3000',
+                enableTouchGestures: false, // Disable touch gestures for this test
+                enableCameraGestures: false, // We'll handle camera manually
+                gestureThreshold: 0.3,
+                cooldownMs: 1000
+            });
+            
+            // Set up camera controls
+            const video = document.getElementById('video');
+            const overlay = document.getElementById('overlay');
+            const ctx = overlay.getContext('2d');
+            const toggleCamBtn = document.getElementById('toggleCamBtn');
+            const cameraToggle = document.getElementById('cameraToggle');
+            const gestureToggle = document.getElementById('gestureToggle');
+            const placeholder = document.getElementById('placeholder');
+            
+            // Camera functions
+            async function startCamera() {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    placeholder.style.display = "none";
+                    toggleCamBtn.classList.add("active");
+                    toggleCamBtn.classList.remove("off");
+                    cameraToggle.checked = true;
+                    resizeCanvas();
+                    requestAnimationFrame(drawOverlay);
+                    
+                    // Start gesture recognition if enabled
+                    if (isGestureRecognitionActive) {
+                        startGestureRecognition();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Error accessing camera. Please allow permissions.");
+                }
+            }
+            
+            function stopCamera() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                placeholder.style.display = "grid";
+                toggleCamBtn.classList.remove("active");
+                toggleCamBtn.classList.add("off");
+                cameraToggle.checked = false;
+                
+                // Stop gesture recognition
+                stopGestureRecognition();
+            }
+            
+            function resizeCanvas() {
+                const rect = video.getBoundingClientRect();
+                overlay.width = rect.width * devicePixelRatio;
+                overlay.height = rect.height * devicePixelRatio;
+                overlay.style.width = rect.width + "px";
+                overlay.style.height = rect.height + "px";
+                ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+            }
+            
+            function drawOverlay() {
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                requestAnimationFrame(drawOverlay);
+            }
+            
+            // Gesture recognition functions using your exact system
+            async function predictGesture() {
+                if (!video.srcObject) return;
+                
+                try {
+                    // Capture frame from video
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+                    
+                    // Convert to base64
+                    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // Send to backend using your exact system
+                    const response = await fetch('http://localhost:3000/api/gesture/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ image: imageData })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        updateGestureDisplay(result);
+                        
+                        // Trigger gesture action if confidence is high enough
+                        if (result.gesture && result.gesture !== 'none' && result.confidence >= 0.3) {
+                            console.log('🎭 Triggering gesture action:', result.gesture);
+                            gestureController.handleGesture(result.gesture);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Gesture prediction error:', error);
+                }
+            }
+            
+            function updateGestureDisplay(result) {
+                const gestureElements = document.querySelectorAll('#currentGesture, #current-gesture');
+                const confidenceFills = document.querySelectorAll('.confidence-fill');
+                const confidenceValue = document.getElementById('confidence-value');
+                
+                // Update gesture display elements
+                gestureElements.forEach(element => {
+                    if (result.gesture === 'none') {
+                        element.textContent = 'No gesture detected';
+                        element.style.color = '#888';
+                    } else {
+                        element.textContent = `${result.gesture} (${(result.confidence * 100).toFixed(1)}%)`;
+                        element.style.color = result.confidence > 0.8 ? '#4CAF50' : '#FF9800';
+                    }
+                });
+                
+                // Update confidence bars
+                confidenceFills.forEach(fill => {
+                    fill.style.width = `${result.confidence * 100}%`;
+                    fill.style.backgroundColor = result.confidence > 0.8 ? '#4CAF50' : 
+                                                result.confidence > 0.6 ? '#FF9800' : '#F44336';
+                });
+                
+                // Update confidence value
+                if (confidenceValue) {
+                    confidenceValue.textContent = `${(result.confidence * 100).toFixed(1)}%`;
+                }
+            }
+            
+            function startGestureRecognition() {
+                if (gestureRecognitionInterval) return;
+                
+                gestureRecognitionInterval = setInterval(predictGesture, 500); // Every 500ms like your system
+                console.log('🎭 Gesture recognition started');
+            }
+            
+            function stopGestureRecognition() {
+                if (gestureRecognitionInterval) {
+                    clearInterval(gestureRecognitionInterval);
+                    gestureRecognitionInterval = null;
+                    console.log('🎭 Gesture recognition stopped');
+                }
+            }
+            
+            // Event listeners
+            toggleCamBtn.addEventListener('click', () => {
+                stream ? stopCamera() : startCamera();
+            });
+            
+            cameraToggle.addEventListener('change', () => {
+                cameraToggle.checked ? startCamera() : stopCamera();
+            });
+            
+            gestureToggle.addEventListener('change', () => {
+                isGestureRecognitionActive = gestureToggle.checked;
+                if (isGestureRecognitionActive && stream) {
+                    startGestureRecognition();
+                } else {
+                    stopGestureRecognition();
+                }
+            });
+            
+            // Window resize
+            window.addEventListener('resize', resizeCanvas);
+        });
+    </script>
+</body>
+</html>
